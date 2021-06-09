@@ -270,8 +270,29 @@ class TSPSolver:
 	'''
 		
 	def fancy( self,time_allowance=60.0 ):
+		#Create two sets: one with all cities S, edges E, and path P
+		#Pick a node at random (or one that hasn’t been chosen yet)
+
 		pass
-		
+
+	def get_path(self, unused_nodes, path, open_edges, total_cost):
+		# unused_nodes is empty: return path
+		if unused_nodes == None:
+			return path
+		closest = self.get_closest_node(unused_nodes, path)
+
+		optimal_edges_results = self.get_optimal_edges(open_edges, path, closest)
+
+	def get_closest_node(self, unused_nodes, path):
+		#return closest_node
+		pass
+
+	def get_optimal_edges(self, edges, path, closest_node):
+		return {'edges': edges,
+				'edges_cost': edges_cost,
+				'removed_edges_cost': removed_edges_cost}
+
+		pass
 	'''
 	Helper function createMatrix creates a cost matrix based on all cities contained in the
 	scenario. It first creates a 2d matrix filled with infinity in every cell. Then, using
