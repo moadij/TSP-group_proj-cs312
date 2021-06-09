@@ -31,7 +31,7 @@ class TSPSolver:
 		solution found, and three null values for fields not used for this 
 		algorithm</returns> 
 	'''
-	
+
 	def defaultRandomTour( self, time_allowance=60.0 ):
 		results = {}
 		cities = self._scenario.getCities()
@@ -268,44 +268,52 @@ class TSPSolver:
 		best solution found.  You may use the other three field however you like.
 		algorithm</returns> 
 	'''
-		
+
 	def fancy( self,time_allowance=60.0 ):
 		#Create two sets: one with all cities S, edges E, and path P
 			#Pick a node at random (or one that hasn’t been chosen yet)
 			# P += S.pop(node)
 			# E += (node, node)
 			# get_path(S, P, E, 0)
-
+		# TODO: get_initial_set function that connects the first two nodes (sorted by index) that have paths
 		pass
 
-	def get_path(self, unused_nodes, path, open_edges, total_cost):
-		# unused_nodes is empty: return path
-		if unused_nodes == None:
-			return path
-		closest = self.get_closest_node(unused_nodes, path)
+	# while path_not_found:
+	# 	for c in cities:
+	# 		if c._index not in path:
+	#			find closest node
+	#			calc incremental costs
 
-		optimal_edges_results = self.get_optimal_edges(open_edges, path, closest)
-		if not optimal_edge_results['results']:
-			# do something that will turn this on to the next node
-			# or maybe filter the nodes in the get_closest_node function?
-			# the following assumes the closest node has valid pathing
-		path.insert(optimal_edge_results['edges'])
-		total_cost += optimal_edges_results['edges_cost']
-		total_cost -= optimal_edges_results['removed_edges_cost']
-		open_edges.remove(optimal_edge_results['edges'])
-		unused_nodes.remove(closest)
-		self.get_path(unused_nodes, path, open_edges, total_cost)
+	'''
+	Initial set function returns an initial path array with a default starting node of 0 and the first
+	node in Cities that creates a loop with 0. This serves as the starting point for our algorithm, and 
+	can be randomized later.
+	'''
+	def get_initial_set(self, cityMatrix, remainingCities):
+		path = [0]
+		for i in range(1, len(cityMatrix[0])):
+			if self._scenario._edge_exists[i][0] and self._scenario._edge_exists[0][i]:
+				path.append(i)
+				return path
 
-	def get_closest_node(self, unused_nodes, path):
-		#return closest_node
-		pass
+	'''
+	Helper function to calculate the incremental cost of replace an edge between fromNode and toNode.
+	'''
+	def calculate_cost(self, costMatrix, fromNode: int, toNode: int, newNode: int):
+		cost = 0
+		cost += costMatrix[fromNode][newNode]
+		cost += costMatrix[newNode][toNode]
+		cost -= costMatrix[fromNode][toNode]
+		return cost
 
-	def get_optimal_edges(self, edges, path, closest_node):
-		return {'edges': edges,
-				'edges_cost': edges_cost,
-				'removed_edges_cost': removed_edges_cost}
+	'''
+	Helper function to find the closest member of the path to a non-member node
+	'''
+	def find_closest_node(self, cities, newNode, path):
+		for i in range(len(path)):
+			list.append(math.sqrt(((cities[i]._x - cities[newNode]._x) **2) + ((cities[i]._y - cities[newNode]._y) **2)))
+		return path[list.index(min(list))]
 
-		pass
 	'''
 	Helper function createMatrix creates a cost matrix based on all cities contained in the
 	scenario. It first creates a 2d matrix filled with infinity in every cell. Then, using
@@ -405,7 +413,7 @@ class Node:
 		assert(type(other) == Node)
 		return len(self.path) > len(other.path)
 
-class Edges:
+class Edge:
 	def __init__(self,
 				 to_node = None,
 				 from_node = None,
