@@ -285,14 +285,14 @@ class TSPSolver:
 		closest = self.get_closest_node(unused_nodes, path)
 
 		optimal_edges_results = self.get_optimal_edges(open_edges, path, closest)
-		if not optimal_edges['results']:
-			#do something that will turn this on to the next node
+		if not optimal_edge_results['results']:
+			# do something that will turn this on to the next node
 			# or maybe filter the nodes in the get_closest_node function?
 			# the following assumes the closest node has valid pathing
-		path.insert(optimal_edges['edges'])
+		path.insert(optimal_edge_results['edges'])
 		total_cost += optimal_edges_results['edges_cost']
 		total_cost -= optimal_edges_results['removed_edges_cost']
-		open_edges.remove(optimal_edges['edges'])
+		open_edges.remove(optimal_edge_results['edges'])
 		unused_nodes.remove(closest)
 		self.get_path(unused_nodes, path, open_edges, total_cost)
 
@@ -407,6 +407,8 @@ class Node:
 
 class Edges:
 	def __init__(self,
+				 to_node = None,
+				 from_node = None,
 				 cost_to_node = None,
 				 cost_from_node = None):
 		self.cost_to_node = cost_to_node
