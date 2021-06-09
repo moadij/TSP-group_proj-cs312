@@ -358,15 +358,23 @@ class Node:
 				 RCM = None,
 				 bound = None,
 				 remCities = None,
-				 path = None):
+				 path = None,
+				 edge = None):
 		self.currentCity = currentCity
 		self.RCM = RCM
 		self.bound = bound
 		self.remCities = remCities
 		self.path = path
+		self.edge = edge
 
 	def __lt__(self, other):
 		assert(type(other) == Node)
 		return len(self.path) > len(other.path)
 
-
+class Edges:
+	def __init__(self,
+				 cost_to_node = None,
+				 cost_from_node = None):
+		self.cost_to_node = cost_to_node
+		self.cost_from_node = cost_from_node
+		#what else fo we need here?
