@@ -271,7 +271,10 @@ class TSPSolver:
 		
 	def fancy( self,time_allowance=60.0 ):
 		#Create two sets: one with all cities S, edges E, and path P
-		#Pick a node at random (or one that hasn’t been chosen yet)
+			#Pick a node at random (or one that hasn’t been chosen yet)
+			# P += S.pop(node)
+			# E += (node, node)
+			# get_path(S, P, E, 0)
 
 		pass
 
@@ -282,6 +285,16 @@ class TSPSolver:
 		closest = self.get_closest_node(unused_nodes, path)
 
 		optimal_edges_results = self.get_optimal_edges(open_edges, path, closest)
+		if not optimal_edges['results']:
+			#do something that will turn this on to the next node
+			# or maybe filter the nodes in the get_closest_node function?
+			# the following assumes the closest node has valid pathing
+		path.insert(optimal_edges['edges'])
+		total_cost += optimal_edges_results['edges_cost']
+		total_cost -= optimal_edges_results['removed_edges_cost']
+		open_edges.remove(optimal_edges['edges'])
+		unused_nodes.remove(closest)
+		self.get_path(unused_nodes, path, open_edges, total_cost)
 
 	def get_closest_node(self, unused_nodes, path):
 		#return closest_node
