@@ -274,21 +274,21 @@ class TSPSolver:
 		path_found = False
 
 		# TODO: accommodate for infinite distances (Hard levels)
-		# TODO: test multiple paths (use multiple starting nodes to begin with)
-		# TODO: optimize algorithm - right now it is fast but not much better than the greedy or random algorithms
-		# 	TODO: ideas for optimization:
-		#		  	randomly choose the next node to add (the newNode value)
-		#		  	randomly choose the starting point
-		#		  	use Euler's Formula to calculate the value of continuing to search (law of diminishing returns)
-		#		  	use the costTo value of a given city to calculate cost instead of Euclidean geometry
-		#				(need anyways for accommodating infinite distances)
+		# TODO: test multiple paths (use multiple starting nodes to begin with) (see optimization notes)
+		# OPTIMIZE: right now it is fast but not much better than the greedy or random algorithms
+		# 	IDEA:
+		# 		randomly choose the next node to add (the newNode value)
+		# 		randomly choose the starting point
+		# 		use Euler's Formula to calculate the value of continuing to search (law of diminishing returns)
+		# 		use the costTo value of a given city to calculate cost instead of Euclidean geometry
+		#			(need anyways for accommodating infinite distances)
 
 		# while not path:
 		# 	tried_indices.append(initial_index)
 		#	initial_index += 1
 		#	path = self.get_initial_set(cities, initial_index)
 
-		# TODO: this algorithm is h*ckin fast, so time is not really the issue here, optimization is
+		# NOTE: this algorithm is h*ckin fast, so time is not really the issue here, optimization is
 		while not path_found and time.time() - start_time < time_allowance:
 			for newNode in remainingCities:
 				closestNode = self.find_closest_node(cities, newNode, path)
@@ -363,7 +363,7 @@ class TSPSolver:
 	Helper function to find the closest member of the path to a non-member node
 	'''
 
-	# TODO: modify to use city's costTo function instead of relying on euclidean distances
+	# FIXME: modify to use city's costTo function instead of relying on euclidean distances
 	# 	TODO: to/from distances between a given city and the newNode object are not guaranteed to be the same - need
 	#		  to take this into account in this function (potentially with a flattened 2D array? get the index in cities
 	#		  by dividing the nodes index by 2, then figure out if it's the to or from value by mod-dividing the index by
