@@ -270,19 +270,59 @@ class TSPSolver:
 	'''
 
 	def fancy( self,time_allowance=60.0 ):
-		#Create two sets: one with all cities S, edges E, and path P
-			#Pick a node at random (or one that hasn’t been chosen yet)
-			# P += S.pop(node)
-			# E += (node, node)
-			# get_path(S, P, E, 0)
-		# TODO: get_initial_set function that connects the first two nodes (sorted by index) that have paths
-		pass
+		start_time = time.time()
+		tried_indices = []
+		cities = self._scenario.getCities
+		cost_matrix = self.createMatrix(cities)
+		initial_index = 0
+		path, remainingCities = self.get_initial_set(cities, initial_index)
+		path_found = False
 
-	# while path_not_found:
-	# 	for c in cities:
-	# 		if c._index not in path:
-	#			find closest node
-	#			calc incremental costs
+		# TODO: implement checks to make sure this doesn't go over bounds
+		# for now just assume it works lol
+		# while not path:
+		# 	tried_indices.append(initial_index)
+		#	initial_index += 1
+		#	path = self.get_initial_set(cities, initial_index)
+
+		# while time.time() - start_time < time_allowance:
+		while not path_found: # and time.time() - start_time < time_allowance:
+			for newNode in remainingCities:
+				closestNode = self.find_closest_node(cities, newNode, path)
+				nodeIndex = path.index(closestNode)
+				# given ABC, newNode D, calc ADB
+				preCost = self.calculate_cost(cost_matrix,
+											  path[nodeIndex-1],
+											  nodeIndex,
+											  newNode)
+				# given ABC, newNode D, calc BDC
+				postCost = self.calculate_cost(cost_matrix,
+											   nodeIndex,
+											   path[nodeIndex+1 if nodeIndex+1 < len(path) else 0],
+											   newNode)
+				if preCost < postCost:
+					path.insert(nodeIndex, newNode)
+				else:
+					path.insert(nodeIndex+1) if nodeIndex+1 < len(path) else path.append(newNode)
+
+			if len(path) == len(cities):
+				path_found = True
+
+		end_time = time.time()
+		route = []
+		for i in range(len(cities)):
+			route.append(cities[path[i]])
+
+		bssf = TSPSolution(route)
+		results = {'cost': bssf.cost,
+				   'time': 0,
+				   'count': 0,
+				   'soln': bssf,
+				   'max': 0,
+				   'total': 0,
+				   'pruned': 0}
+
+		return results  # O(1), O(1)
 
 	'''
 	Initial set function returns an initial path array with a default starting node of 0 and the first
@@ -294,7 +334,10 @@ class TSPSolver:
 		for i in range(1, len(cityMatrix[0])):
 			if self._scenario._edge_exists[i][0] and self._scenario._edge_exists[0][i]:
 				path.append(i)
-				return path
+				remaining = [c._index for c in cities]
+				remaining -= path
+				return path, remaining
+		return False, False
 
 	'''
 	Helper function to calculate the incremental cost of replace an edge between fromNode and toNode.
@@ -313,6 +356,24 @@ class TSPSolver:
 		for i in range(len(path)):
 			list.append(math.sqrt(((cities[i]._x - cities[newNode]._x) **2) + ((cities[i]._y - cities[newNode]._y) **2)))
 		return path[list.index(min(list))]
+
+
+	def get_neighbor_nodes(self, cities, node: int, path):
+		index_in_path = path.index(node)
+		if index_in_path == 0:
+			from_neighbor_index = path[-1]
+		else:
+			from_neighbor_index = path[index_in_path - 1]
+		if index_in_path == len(path) - 1:
+			to_neighbor_index = path[0]
+		else: from_neighbor_index = path[index_in_path + 1]
+		from_neighbor_index = 'something'
+		to_neighbor_index = 'something else'
+
+		return {'from': from_neighbor_index, 'node': node, 'to': to_neighbor_index}
+
+	# nodeIndex = path.index(closestNode)
+	# calculate_cost(costMatrix, path[nodeIndex-1], path[nodeIndex+1 if nodeIndex+1 < len(path) else 0], closestNode)
 
 	'''
 	Helper function createMatrix creates a cost matrix based on all cities contained in the
