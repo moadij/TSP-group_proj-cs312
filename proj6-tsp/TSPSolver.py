@@ -273,8 +273,10 @@ class TSPSolver:
 		path, remainingCities = self.get_initial_set(cities, initial_index)
 		path_found = False
 
-		# TODO: implement checks to make sure this doesn't go over bounds
-		# for now just assume it works lol
+		# TODO: accommodate for infinite distances (Hard levels)
+		# TODO: test multiple paths (use multiple starting nodes to begin with)
+		# TODO: optimize algorithm - right now it is fast but not much better than the greedy or random algorithms
+
 		# while not path:
 		# 	tried_indices.append(initial_index)
 		#	initial_index += 1
@@ -355,30 +357,13 @@ class TSPSolver:
 	Helper function to find the closest member of the path to a non-member node
 	'''
 
+	# TODO: modify to use city's costTo function instead of relying on euclidean distances
 	def find_closest_node(self, cities, newNode, path):
 		nodes = []
 		for i in range(len(path)):
 			nodes.append(
 				math.sqrt(((cities[i]._x - cities[newNode]._x) ** 2) + ((cities[i]._y - cities[newNode]._y) ** 2)))
 		return path[nodes.index(min(nodes))]
-
-	def get_neighbor_nodes(self, cities, node: int, path):
-		index_in_path = path.index(node)
-		if index_in_path == 0:
-			from_neighbor_index = path[-1]
-		else:
-			from_neighbor_index = path[index_in_path - 1]
-		if index_in_path == len(path) - 1:
-			to_neighbor_index = path[0]
-		else:
-			from_neighbor_index = path[index_in_path + 1]
-		from_neighbor_index = 'something'
-		to_neighbor_index = 'something else'
-
-		return {'from': from_neighbor_index, 'node': node, 'to': to_neighbor_index}
-
-	# nodeIndex = path.index(closestNode)
-	# calculate_cost(costMatrix, path[nodeIndex-1], path[nodeIndex+1 if nodeIndex+1 < len(path) else 0], closestNode)
 
 	'''
 	Helper function createMatrix creates a cost matrix based on all cities contained in the
@@ -483,13 +468,3 @@ class Node:
 		assert (type(other) == Node)
 		return len(self.path) > len(other.path)
 
-
-class Edge:
-	def __init__(self,
-				 to_node=None,
-				 from_node=None,
-				 cost_to_node=None,
-				 cost_from_node=None):
-		self.cost_to_node = cost_to_node
-		self.cost_from_node = cost_from_node
-# what else fo we need here?
