@@ -329,10 +329,13 @@ class TSPSolver:
 	node in Cities that creates a loop with 0. This serves as the starting point for our algorithm, and 
 	can be randomized later.
 	'''
-	def get_initial_set(self, cityMatrix, remainingCities):
-		path = [0]
-		for i in range(1, len(cityMatrix[0])):
-			if self._scenario._edge_exists[i][0] and self._scenario._edge_exists[0][i]:
+	def get_initial_set(self, cities, initial_index):
+		path = [initial_index]
+		remaining = cities.copy()
+		for i in range(0, len(cities)):
+			if i != initial_index and \
+					self._scenario._edge_exists[i][0] and \
+					self._scenario._edge_exists[0][i]:
 				path.append(i)
 				remaining = [c._index for c in cities]
 				remaining -= path
