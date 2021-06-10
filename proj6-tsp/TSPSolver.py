@@ -292,47 +292,63 @@ class TSPSolver:
 		#	initial_index += 1
 		#	path = self.get_initial_set(cities, initial_index)
 
+		results = {'path': [], 'cost': math.inf}
 		# NOTE: this algorithm is h*ckin fast, so time is not really the issue here, optimization is
-		while not path_found and time.time() - start_time < time_allowance:
-			for newNode in remainingCities:
-				closestNode = self.find_closest_node(cities, newNode, path)
-				nodeIndex = path.index(closestNode)
-				# given ABC, newNode D, calc ADB
-				pre_cost = self.calculate_cost(cost_matrix,
-											  path[nodeIndex - 1],
-											  nodeIndex,
-											  newNode)
-				# given ABC, newNode D, calc BDC
-				post_cost = self.calculate_cost(cost_matrix,
-											   nodeIndex,
-											   path[nodeIndex + 1 if nodeIndex + 1 < len(path) else 0],
-											   newNode)
-				if pre_cost < post_cost:
-					path.insert(nodeIndex, newNode)
-					remainingCities.remove(newNode)
+		for c in range(len(cities)):
+			if time.time() - start_time > time_allowance:
+				break
+			for d in range(len(cities)):
+				if time.time() - start_time > time_allowance or c == d:
 					break
-				elif post_cost < pre_cost:
-					if nodeIndex + 1 < len(path):
-						path.insert(nodeIndex + 1, newNode)
-						remainingCities.remove(newNode)
-						break
-					else:
-						path.append(newNode)
-						remainingCities.remove(newNode)
-						break
+				path, remainingCities, cost = self.get_initial_set(cities, c, d, cost_matrix)
+				if cost == math.inf:
+					break
+				for newNode in remainingCities:
+					closestNode = self.find_closest_node(cost_matrix, newNode, path)
+					nodeIndex = path.index(closestNode)
+					# given ABC, newNode D, calc ADB
+					# NOTE: changed nodeIndex to closestNode
+					pre_cost = self.calculate_cost(cost_matrix,
+												  path[nodeIndex - 1],
+												  closestNode,
+												  newNode)
+					# given ABC, newNode D, calc BDC
+					# NOTE: changed nodeIndex to closestNode
+					post_cost = self.calculate_cost(cost_matrix,
+												   closestNode,
+												   path[nodeIndex + 1 if nodeIndex + 1 < len(path) else 0],
+												   newNode)
 
-			if len(path) == len(cities):
-				# path.append(path[0])
-				path_found = True
+					# NOTE: will need to accommodate case where one or the other is infinity
+					# if pre_cost == math.inf and post_cost == math.inf:
+					# 	break
+					if pre_cost < post_cost:
+						path.insert(nodeIndex, newNode)
+						cost += pre_cost
+					else:
+						cost += post_cost
+						if nodeIndex + 1 < len(path):
+							path.insert(nodeIndex + 1, newNode)
+						else:
+							path.append(newNode)
+
+				if len(path) == len(cities):
+					path.append(path[0])
+				if cost < results['cost']:
+					results['path'] = path
+					results['cost'] = cost
+
+				count += 1
 
 		end_time = time.time()
 		route = []
+		path = results['path']
 		for i in range(len(cities)):
 			route.append(cities[path[i]])
 		bssf = TSPSolution(route)
 		results = {'cost': bssf.cost,
 				   'time': end_time - start_time,
-				   'count': 0,
+				   'count': count,
 				   'soln': bssf,
 				   'max': 0,
 				   'total': 0,
@@ -346,18 +362,18 @@ class TSPSolver:
 	can be randomized later.
 	'''
 
-	def get_initial_set(self, cities, initial_index):
-		path = [initial_index]
-		remaining = cities.copy()
-		for i in range(0, len(cities)):
-			if i != initial_index and \
-					self._scenario._edge_exists[i][0] and \
-					self._scenario._edge_exists[0][i]:
-				path.append(i)
-				remaining = [c._index for c in cities]
-				remaining_cities = [x for x in remaining if x not in path]
-				return path, remaining_cities
-		return False, False
+	def get_initial_set(self, cities, c, d, cost_matrix):
+		path = []
+		remaining_cities = []
+		cost = math.inf
+
+		if self._scenario._edge_exists[c][d] and self._scenario._edge_exists[d][c]:
+			path = [c, d]
+			remaining = [e._index for e in cities]
+			remaining_cities = [x for x in remaining if x not in path]
+			cost = cost_matrix[c][d] + cost_matrix[d][c]
+
+		return path, remaining_cities, cost
 
 	'''
 	Helper function to calculate the incremental cost of replace an edge between fromNode and toNode.
