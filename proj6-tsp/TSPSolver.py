@@ -89,26 +89,30 @@ class TSPSolver:
 		cities = self._scenario.getCities()  # O(1), O(n)
 		nCities = len(cities)  # O(1), O(1)
 		count = 0  # O(1), O(1)
+		pathFound = False
 
-		currentSpot = 0  # O(1), O(1)
-		masterMatrix = self.createMatrix(cities)  # O(n^2), O(n^2)
-		path = []  # O(1), O(1)
-		cityMatrix = np.array(copy.deepcopy(masterMatrix))  # O(n^2), O(n^2)
-		cityMatrix[:, currentSpot] = math.inf  # O(n), O(1)
-		for city in cities:  # O(n), O(1)
-			path.append(currentSpot)  # O(1), O(n)
-			minColumn = np.min(cityMatrix[currentSpot])  # O(n), O(1)
-			minColumnIndex = 0  # O(1), O(1)
-			if minColumn == math.inf:  # O(1), O(1)
-				for i in range(nCities):  # O(n), O(1)
-					if i not in path:  # O(1), O(1)
-						minColumnIndex = i  # O(1), O(1)
-			else:  # O(1), O(1)
-				minColumnIndex = np.argmin(cityMatrix[currentSpot])  # O(n), O(1)
-			cityMatrix[currentSpot][minColumnIndex] = math.inf  # O(1), O(1)
-			cityMatrix[currentSpot, :] = math.inf  # O(n), O(1)
-			cityMatrix[:, minColumnIndex] = math.inf  # O(n), O(1)
-			currentSpot = minColumnIndex  # O(1), O(1)
+		while not pathFound:
+			currentSpot = count  # O(1), O(1)
+			masterMatrix = self.createMatrix(cities)  # O(n^2), O(n^2)
+			path = []  # O(1), O(1)
+			cityMatrix = np.array(copy.deepcopy(masterMatrix))  # O(n^2), O(n^2)
+			cityMatrix[:, currentSpot] = math.inf  # O(n), O(1)
+			for city in cities:  # O(n), O(1)
+				path.append(currentSpot)  # O(1), O(n)
+				minColumn = np.min(cityMatrix[currentSpot])  # O(n), O(1)
+				minColumnIndex = 0  # O(1), O(1)
+				if minColumn == math.inf:  # O(1), O(1)
+					if len(path) < nCities:
+						count += 1
+						break
+					else:
+						pathFound = True
+				else:  # O(1), O(1)
+					minColumnIndex = np.argmin(cityMatrix[currentSpot])  # O(n), O(1)
+				cityMatrix[currentSpot][minColumnIndex] = math.inf  # O(1), O(1)
+				cityMatrix[currentSpot, :] = math.inf  # O(n), O(1)
+				cityMatrix[:, minColumnIndex] = math.inf  # O(n), O(1)
+				currentSpot = minColumnIndex  # O(1), O(1)
 
 		route = []  # O(1), O(1)
 		for i in range(nCities):  # O(n), O(1)
@@ -305,13 +309,20 @@ class TSPSolver:
 											   newNode)
 				if pre_cost < post_cost:
 					path.insert(nodeIndex, newNode)
-				elif nodeIndex + 1 < len(path):
-					path.insert(nodeIndex + 1, newNode)
-				else:
-					path.append(newNode)
+					remainingCities.remove(newNode)
+					break
+				elif post_cost < pre_cost:
+					if nodeIndex + 1 < len(path):
+						path.insert(nodeIndex + 1, newNode)
+						remainingCities.remove(newNode)
+						break
+					else:
+						path.append(newNode)
+						remainingCities.remove(newNode)
+						break
 
 			if len(path) == len(cities):
-				path.append(path[0])
+				# path.append(path[0])
 				path_found = True
 
 		end_time = time.time()
