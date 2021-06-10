@@ -270,11 +270,9 @@ class TSPSolver:
 
 	def fancy(self, time_allowance=60.0):
 		start_time = time.time()
-		tried_indices = []
 		cities = self._scenario.getCities()
 		cost_matrix = self.createMatrix(cities)
-		initial_index = 0
-		path, remainingCities = self.get_initial_set(cities, initial_index)
+		count = 0
 		path_found = False
 
 		# TODO: accommodate for infinite distances (Hard levels)
@@ -395,12 +393,24 @@ class TSPSolver:
 	#		  to take this into account in this function (potentially with a flattened 2D array? get the index in cities
 	#		  by dividing the nodes index by 2, then figure out if it's the to or from value by mod-dividing the index by
 	#		  2
-	def find_closest_node(self, cities, newNode, path):
+
+	# to A from B = 1000
+	# from A to B = 10
+	# D,A,C
+	# D,B,A or A,B,C
+	# to E from B = 100
+	# to B from E = 100
+	def find_closest_node(self, costMatrix, newNode, path):
 		nodes = []
 		for i in range(len(path)):
 			nodes.append(
-				math.sqrt(((cities[i]._x - cities[newNode]._x) ** 2) + ((cities[i]._y - cities[newNode]._y) ** 2)))
+				min(costMatrix[i][newNode], costMatrix[newNode][i]))
 		return path[nodes.index(min(nodes))]
+
+	# Rem: B E H
+	# NewNode: E
+	# Dist: 10 20
+	# Path: A  C  D F
 
 	'''
 	Helper function createMatrix creates a cost matrix based on all cities contained in the
