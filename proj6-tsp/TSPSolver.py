@@ -273,14 +273,14 @@ class TSPSolver:
 		cities = self._scenario.getCities()
 		cost_matrix = self.createMatrix(cities)
 		count = 0
-		path_found = False
+		skippedNodes = []
 
 		# TODO: accommodate for infinite distances (Hard levels)
 		# TODO: test multiple paths (use multiple starting nodes to begin with) (see optimization notes)
 		# OPTIMIZE: right now it is fast but not much better than the greedy or random algorithms
 		# 	IDEA:
-		# 		randomly choose the next node to add (the newNode value)
-		# 		randomly choose the starting point
+		# 		randomly choose the next node to add (the newNode value) - currently going in order
+		# 		randomly choose the starting point - settled on testing all starting points
 		# 		use Euler's Formula to calculate the value of continuing to search (law of diminishing returns)
 		# 		use the costTo value of a given city to calculate cost instead of Euclidean geometry
 		#			(need anyways for accommodating infinite distances)
@@ -301,7 +301,9 @@ class TSPSolver:
 				path, remainingCities, cost = self.get_initial_set(cities, c, d, cost_matrix)
 				if cost == math.inf:
 					break
-				for newNode in remainingCities:
+				counter = 0
+				while len(remainingCities) > 0 and counter < len(remainingCities):
+					newNode = remainingCities.pop()
 					closestNode = self.find_closest_node(cost_matrix, newNode, path)
 					nodeIndex = path.index(closestNode)
 					# given ABC, newNode D, calc ADB
@@ -318,13 +320,16 @@ class TSPSolver:
 												   newNode)
 
 					# NOTE: will need to accommodate case where one or the other is infinity
-					# if pre_cost == math.inf and post_cost == math.inf:
-					# 	break
-					if pre_cost < post_cost:
+					if pre_cost == math.inf and post_cost == math.inf:
+						remainingCities.insert(0,newNode)
+						counter += 1
+					elif pre_cost < post_cost:
 						path.insert(nodeIndex, newNode)
 						cost += pre_cost
+						counter = 0
 					else:
 						cost += post_cost
+						counter = 0
 						if nodeIndex + 1 < len(path):
 							path.insert(nodeIndex + 1, newNode)
 						else:
@@ -332,9 +337,9 @@ class TSPSolver:
 
 				if len(path) == len(cities):
 					path.append(path[0])
-				if cost < results['cost']:
-					results['path'] = path
-					results['cost'] = cost
+					if cost < results['cost']:
+						results['path'] = path
+						results['cost'] = cost
 
 				count += 1
 
