@@ -166,29 +166,29 @@ class TSPSolver:
     '''
 
 	def branchAndBound(self, time_allowance=60.0):
-		startTime = time.time()  # O(1), O(1)
-		results = {}  # O(1), O(1)
-		greedy = self.greedy()  # O(n^2), O(n^2)
-		lowestCost = greedy['cost']  # O(1), O(1)
-		num_updates = 0  # O(1), O(1)
-		maxHeapLen = 1  # O(1), O(1)
-		pruned = 0  # O(1), O(1)
-		totalCreated = 0  # O(1), O(1)
-		bssf = greedy['soln']  # O(1), O(1)
+		startTime = time.time()  												# O(1), O(1)
+		results = {}  															# O(1), O(1)
+		greedy = self.greedy()  												# O(n^2), O(n^2)
+		lowestCost = greedy['cost']  											# O(1), O(1)
+		num_updates = 0  														# O(1), O(1)
+		maxHeapLen = 1  														# O(1), O(1)
+		pruned = 0  															# O(1), O(1)
+		totalCreated = 0  														# O(1), O(1)
+		bssf = greedy['soln']  													# O(1), O(1)
 
-		heap = []  # O(1), O(1)
-		heapq.heapify(heap)  # O(1), O(1)
+		heap = []  																# O(1), O(1)
+		heapq.heapify(heap)  													# O(1), O(1)
 
-		cities = self._scenario.getCities()  # O(1), O(n)
-		nCities = len(cities)  # O(1), O(1)
+		cities = self._scenario.getCities()  									# O(1), O(n)
+		nCities = len(cities)  													# O(1), O(1)
 
-		masterMatrix = self.createMatrix(cities)  # O(n^2), O(n^2)
-		cityMatrix = np.array(copy.deepcopy(masterMatrix))  # O(n^2), O(n^2)
-		startBound = self.reduceMatrix(cityMatrix, cities)  # O(n^2), O(n)
+		masterMatrix = self.createMatrix(cities)  								# O(n^2), O(n^2)
+		cityMatrix = np.array(copy.deepcopy(masterMatrix))  					# O(n^2), O(n^2)
+		startBound = self.reduceMatrix(cityMatrix, cities)  					# O(n^2), O(n)
 
 		startPath = []  # O(1), O(1)
 		startPath.append(0)  # O(1), O(1)
-		remCities = ([x._index for x in cities], [y._index for y in cities])  # O(n^2), O(n^2)
+		remCities = ([x._index for x in cities], [y._index for y in cities]) 	# O(n^2), O(n^2)
 
 		'''
         When saving data to a node, there are three things that increase
@@ -198,66 +198,67 @@ class TSPSolver:
         requirement is better represented as the worst case of remCities,
         or O(2n).
         '''
-		startNode = Node(0, cityMatrix, startBound, remCities, startPath)  # O(1), O(2n + n^2)
-		heapq.heappush(heap, (startNode.bound, startNode))  # O(1), O(1)
+		startNode = Node(0, cityMatrix, startBound, remCities, startPath)  		# O(1), O(2n + n^2)
+		heapq.heappush(heap, (startNode.bound, startNode))  					# O(1), O(1)
 
-		while len(heap) > 0 and time.time() - startTime < time_allowance:  # O(n!), O(1)
+		while len(heap) > 0 and time.time() - startTime < time_allowance:  		# O(n!), O(1)
 			# load necessary data
-			currentNode = heapq.heappop(heap)[1]  # O(log n), O(1)
-			if currentNode.bound < lowestCost:  # O(1), O(1)
-				currentCity = currentNode.currentCity  # O(1), O(1)
-				currentMatrix = currentNode.RCM  # O(1), O(1)
-				currentBound = currentNode.bound  # O(1), O(1)
-				currentPath = currentNode.path  # O(1), O(1)
-				remCities = currentNode.remCities  # O(1), O(1)
-				if len(currentPath) == nCities:  # O(1), O(1)
-					route = []  # O(1), O(1)
-					for i in range(nCities):  # O(n), O(1)
-						route.append(cities[currentPath[i]])  # O(1), O(n)
+			currentNode = heapq.heappop(heap)[1]  								# O(log n), O(1)
+			if currentNode.bound < lowestCost:  								# O(1), O(1)
+				currentCity = currentNode.currentCity  							# O(1), O(1)
+				currentMatrix = currentNode.RCM  								# O(1), O(1)
+				currentBound = currentNode.bound  								# O(1), O(1)
+				currentPath = currentNode.path  								# O(1), O(1)
+				remCities = currentNode.remCities  								# O(1), O(1)
+				if len(currentPath) == nCities:  								# O(1), O(1)
+					route = []  												# O(1), O(1)
+					for i in range(nCities):  									# O(n), O(1)
+						route.append(cities[currentPath[i]])  					# O(1), O(n)
 
-					bssf = TSPSolution(route)  # O(1), O(1)
-					lowestCost = bssf.cost  # O(1), O(1)
-					num_updates += 1  # O(1), O(1)
+					bssf = TSPSolution(route)  									# O(1), O(1)
+					lowestCost = bssf.cost  									# O(1), O(1)
+					num_updates += 1  											# O(1), O(1)
 
 				# expand destinations
-				for sink in remCities[1]:  # O(n), O(1)
-					if sink != currentCity:  # O(1), O(1)
-						totalCreated += 1  # O(1), O(1)
-						if currentMatrix[currentCity][sink] == math.inf:  # O(1), O(1)
-							pruned += 1  # O(1), O(1)
-						else:  # O(1), O(1)
-							newPath = copy.deepcopy(currentPath)  # O(n), O(n)
-							newPath.append(sink)  # O(1), O(n)
+				for sink in remCities[1]:  										# O(n), O(1)
+					if sink != currentCity:  									# O(1), O(1)
+						totalCreated += 1  										# O(1), O(1)
+						if currentMatrix[currentCity][sink] == math.inf:  		# O(1), O(1)
+							pruned += 1  										# O(1), O(1)
+						else:  													# O(1), O(1)
+							newPath = copy.deepcopy(currentPath)  				# O(n), O(n)
+							newPath.append(sink)  								# O(1), O(n)
 							newMatrix = np.array(copy.deepcopy(currentMatrix))  # O(n^2), O(n^2)
-							newRemCities = (copy.deepcopy(remCities[0]), copy.deepcopy(remCities[1]))  # O(n), O(n)
-							if currentCity in newRemCities[0]:  # O(1), O(1)
-								newRemCities[0].remove(currentCity)  # O(1), O(1)
-							newRemCities[1].remove(sink)  # O(1), O(1)
-							pathReductionCost = self.reduceMatrixPath(newMatrix, cities, currentCity, sink,
-																	  newRemCities)  # O(n^2), O(n)
-							newNode = Node(sink, newMatrix, (currentBound + pathReductionCost), newRemCities,
-										   newPath)  # O(1), O(2n + n^2)
-							if newNode.bound < lowestCost:  # O(1), O(1)
+							newRemCities = (copy.deepcopy(remCities[0]),
+											copy.deepcopy(remCities[1]))  		# O(n), O(n)
+							if currentCity in newRemCities[0]:  				# O(1), O(1)
+								newRemCities[0].remove(currentCity)  			# O(1), O(1)
+							newRemCities[1].remove(sink)  						# O(1), O(1)
+							pathReductionCost = self.reduceMatrixPath(newMatrix, cities,
+											currentCity, sink, newRemCities)	# O(n^2), O(n)
+							newNode = Node(sink, newMatrix, (currentBound + pathReductionCost),
+										   newRemCities, newPath)  				# O(1), O(2n + n^2)
+							if newNode.bound < lowestCost:  					# O(1), O(1)
 								heapq.heappush(heap, (newNode.bound, newNode))  # O(1), O(1)
-								if len(heap) > maxHeapLen:  # O(1), O(1)
-									maxHeapLen = len(heap)  # O(1), O(1)
-							else:  # O(1), O(1)
-								pruned += 1  # O(1), O(1)
-			else:  # O(1), O(1)
-				pruned += 1  # O(1), O(1)
+								if len(heap) > maxHeapLen:  					# O(1), O(1)
+									maxHeapLen = len(heap)  					# O(1), O(1)
+							else:  												# O(1), O(1)
+								pruned += 1  									# O(1), O(1)
+			else:  																# O(1), O(1)
+				pruned += 1  													# O(1), O(1)
 
-		pruned += len(heap)  # O(1), O(1)
+		pruned += len(heap)  													# O(1), O(1)
 
-		endTime = time.time()  # O(1), O(1)
-		results['cost'] = bssf.cost  # O(1), O(1)
-		results['time'] = endTime - startTime  # O(1), O(1)
-		results['count'] = num_updates  # O(1), O(1)
-		results['soln'] = bssf  # O(1), O(1)
-		results['max'] = maxHeapLen  # O(1), O(1)
-		results['total'] = totalCreated  # O(1), O(1)
-		results['pruned'] = pruned  # O(1), O(1)
+		endTime = time.time()  													# O(1), O(1)
+		results['cost'] = bssf.cost  											# O(1), O(1)
+		results['time'] = endTime - startTime  									# O(1), O(1)
+		results['count'] = num_updates  										# O(1), O(1)
+		results['soln'] = bssf  												# O(1), O(1)
+		results['max'] = maxHeapLen  											# O(1), O(1)
+		results['total'] = totalCreated  										# O(1), O(1)
+		results['pruned'] = pruned  											# O(1), O(1)
 
-		return results  # O(1), O(1)
+		return results  														# O(1), O(1)
 
 	''' <summary>
 		This is the entry point for the algorithm you'll write for your group project.
@@ -268,88 +269,69 @@ class TSPSolver:
 		algorithm</returns> 
 	'''
 
+	'''
+	This algorithm attempts to build a solution from a starting position by adding subsequent nodes
+	into the existing set by calculating a lowest cost around the closest node. 
+	'''
+
 	def fancy(self, time_allowance=60.0):
-		start_time = time.time()
-		cities = self._scenario.getCities()
-		cost_matrix = self.createMatrix(cities)
-		count = 0
-		skippedNodes = []
+		start_time = time.time()														# O(1), O(1)
+		cities = self._scenario.getCities()												# O(1), O(n)
+		cost_matrix = self.createMatrix(cities)											# O(n^2), O(n^2)
+		count = 0																		# O(1), O(1)
 
-		# TODO: accommodate for infinite distances (Hard levels)
-		# TODO: test multiple paths (use multiple starting nodes to begin with) (see optimization notes)
-		# OPTIMIZE: right now it is fast but not much better than the greedy or random algorithms
-		# 	IDEA:
-		# 		randomly choose the next node to add (the newNode value) - currently going in order
-		# 		randomly choose the starting point - settled on testing all starting points
-		# 		use Euler's Formula to calculate the value of continuing to search (law of diminishing returns)
-		# 		use the costTo value of a given city to calculate cost instead of Euclidean geometry
-		#			(need anyways for accommodating infinite distances)
+		results = {'path': [], 'cost': math.inf}										# O(1), O(1)
 
-		# while not path:
-		# 	tried_indices.append(initial_index)
-		#	initial_index += 1
-		#	path = self.get_initial_set(cities, initial_index)
+		for firstCity in range(len(cities)):											# O(n), O(1)
+			if time.time() - start_time > time_allowance:								# O(1), O(1)
+				break																	# O(1), O(1)
+			for secondCity in range(len(cities)):										# O(n), O(1)
+				if time.time() - start_time > time_allowance or firstCity == secondCity:# O(1), O(1)
+					break																# O(1), O(1)
+				path, remainingCities, cost = self.get_initial_set(cities, 				# O(2n), O(n)
+																   firstCity, secondCity, cost_matrix)
+				if cost == math.inf:													# O(1), O(1)
+					break																# O(1), O(1)
+				skipCounter = 0															# O(1), O(1)
+				while len(remainingCities) > 0 and skipCounter < len(remainingCities):	# O(n), O(1)
+					newNode = remainingCities.pop()										# O(1), O(1)
+					closestNode = self.find_closest_node(cost_matrix, newNode, path)	# O(n), O(1)
+					nodeIndex = path.index(closestNode)									# O(n), O(1)
+					pre_cost = self.calculate_cost(cost_matrix, path[nodeIndex - 1], 	# O(1), O(1)
+								closestNode, newNode)
+					post_cost = self.calculate_cost(cost_matrix, closestNode,			# O(1), O(1)
+								path[nodeIndex + 1 if nodeIndex + 1 < len(path) else 0], newNode)
 
-		results = {'path': [], 'cost': math.inf}
-		# NOTE: this algorithm is h*ckin fast, so time is not really the issue here, optimization is
-		for c in range(len(cities)):
-			if time.time() - start_time > time_allowance:
-				break
-			for d in range(len(cities)):
-				if time.time() - start_time > time_allowance or c == d:
-					break
-				path, remainingCities, cost = self.get_initial_set(cities, c, d, cost_matrix)
-				if cost == math.inf:
-					break
-				counter = 0
-				while len(remainingCities) > 0 and counter < len(remainingCities):
-					newNode = remainingCities.pop()
-					closestNode = self.find_closest_node(cost_matrix, newNode, path)
-					nodeIndex = path.index(closestNode)
-					# given ABC, newNode D, calc ADB
-					# NOTE: changed nodeIndex to closestNode
-					pre_cost = self.calculate_cost(cost_matrix,
-												  path[nodeIndex - 1],
-												  closestNode,
-												  newNode)
-					# given ABC, newNode D, calc BDC
-					# NOTE: changed nodeIndex to closestNode
-					post_cost = self.calculate_cost(cost_matrix,
-												   closestNode,
-												   path[nodeIndex + 1 if nodeIndex + 1 < len(path) else 0],
-												   newNode)
+					if pre_cost == math.inf and post_cost == math.inf:					# O(1), O(1)
+						remainingCities.insert(0,newNode)								# O(n), O(1)
+						skipCounter += 1												# O(1), O(1)
+					elif pre_cost < post_cost:											# O(1), O(1)
+						path.insert(nodeIndex, newNode)									# O(n), O(1)
+						cost += pre_cost												# O(1), O(1)
+						skipCounter = 0													# O(1), O(1)
+					else:																# O(1), O(1)
+						cost += post_cost												# O(1), O(1)
+						skipCounter = 0													# O(1), O(1)
+						if nodeIndex + 1 < len(path):									# O(1), O(1)
+							path.insert(nodeIndex + 1, newNode)							# O(n), O(1)
+						else:															# O(1), O(1)
+							path.append(newNode)										# O(1), O(1)
 
-					# NOTE: will need to accommodate case where one or the other is infinity
-					if pre_cost == math.inf and post_cost == math.inf:
-						remainingCities.insert(0,newNode)
-						counter += 1
-					elif pre_cost < post_cost:
-						path.insert(nodeIndex, newNode)
-						cost += pre_cost
-						counter = 0
-					else:
-						cost += post_cost
-						counter = 0
-						if nodeIndex + 1 < len(path):
-							path.insert(nodeIndex + 1, newNode)
-						else:
-							path.append(newNode)
+				if len(path) == len(cities):											# O(1), O(1)
+					path.append(path[0])												# O(1), O(1)
+					if cost < results['cost']:											# O(1), O(1)
+						results['path'] = path											# O(1), O(1)
+						results['cost'] = cost											# O(1), O(1)
 
-				if len(path) == len(cities):
-					path.append(path[0])
-					if cost < results['cost']:
-						results['path'] = path
-						results['cost'] = cost
+				count += 1																# O(1), O(1)
 
-				count += 1
-
-		end_time = time.time()
-		route = []
-		path = results['path']
-		for i in range(len(cities)):
-			route.append(cities[path[i]])
-		bssf = TSPSolution(route)
-		results = {'cost': bssf.cost,
+		end_time = time.time()															# O(1), O(1)
+		route = []																		# O(1), O(1)
+		path = results['path']															# O(1), O(1)
+		for i in range(len(cities)):													# O(n), O(1)
+			route.append(cities[path[i]])												# O(1), O(n)
+		bssf = TSPSolution(route)														# O(1), O(1)
+		results = {'cost': bssf.cost,													# O(1), O(1)
 				   'time': end_time - start_time,
 				   'count': count,
 				   'soln': bssf,
@@ -357,65 +339,54 @@ class TSPSolver:
 				   'total': 0,
 				   'pruned': 0}
 
-		return results  # O(1), O(1)
+		return results  																# O(1), O(1)
 
 	'''
 	Initial set function returns an initial path array with a default starting node of 0 and the first
 	node in Cities that creates a loop with 0. This serves as the starting point for our algorithm, and 
 	can be randomized later.
+	Time complexity: O(2n)
+	Space complexity: O(2n)
 	'''
 
 	def get_initial_set(self, cities, c, d, cost_matrix):
-		path = []
-		remaining_cities = []
-		cost = math.inf
+		path = []																		# O(1), O(1)
+		remaining_cities = []															# O(1), O(1)
+		cost = math.inf																	# O(1), O(1)
 
-		if self._scenario._edge_exists[c][d] and self._scenario._edge_exists[d][c]:
-			path = [c, d]
-			remaining = [e._index for e in cities]
-			remaining_cities = [x for x in remaining if x not in path]
-			cost = cost_matrix[c][d] + cost_matrix[d][c]
+		if self._scenario._edge_exists[c][d] and self._scenario._edge_exists[d][c]:		# O(1), O(1)
+			path = [c, d]																# O(1), O(2)
+			remaining = [e._index for e in cities]										# O(n), O(n)
+			remaining_cities = [x for x in remaining if x not in path]					# O(n), O(n-2)
+			cost = cost_matrix[c][d] + cost_matrix[d][c]								# O(1), O(1)
 
-		return path, remaining_cities, cost
+		return path, remaining_cities, cost												# O(1), O(1)
 
 	'''
 	Helper function to calculate the incremental cost of replace an edge between fromNode and toNode.
+	Time complexity: O(1)
+	Space complexity: O(1)
 	'''
 
 	def calculate_cost(self, costMatrix: object, fromNode: int, toNode: int, newNode: int) -> int:
-		cost = 0
-		cost += costMatrix[fromNode][newNode]
-		cost += costMatrix[newNode][toNode]
-		cost -= costMatrix[fromNode][toNode]
-		return cost
+		cost = 0														# O(1), O(1)
+		cost += costMatrix[fromNode][newNode]							# O(1), O(1)
+		cost += costMatrix[newNode][toNode]								# O(1), O(1)
+		cost -= costMatrix[fromNode][toNode]							# O(1), O(1)
+		return cost														# O(1), O(1)
 
 	'''
-	Helper function to find the closest member of the path to a non-member node
+	Helper function to find the closest member of the path to a non-member node.
+	Time complexity: O(n)
+	Space complexity: O(n)
 	'''
 
-	# FIXME: modify to use city's costTo function instead of relying on euclidean distances
-	# 	TODO: to/from distances between a given city and the newNode object are not guaranteed to be the same - need
-	#		  to take this into account in this function (potentially with a flattened 2D array? get the index in cities
-	#		  by dividing the nodes index by 2, then figure out if it's the to or from value by mod-dividing the index by
-	#		  2
-
-	# to A from B = 1000
-	# from A to B = 10
-	# D,A,C
-	# D,B,A or A,B,C
-	# to E from B = 100
-	# to B from E = 100
 	def find_closest_node(self, costMatrix, newNode, path):
-		nodes = []
-		for i in range(len(path)):
-			nodes.append(
+		nodes = []														# O(1), O(1)
+		for i in range(len(path)):										# O(n), O(1)
+			nodes.append(												# O(1), O(n)
 				min(costMatrix[i][newNode], costMatrix[newNode][i]))
-		return path[nodes.index(min(nodes))]
-
-	# Rem: B E H
-	# NewNode: E
-	# Dist: 10 20
-	# Path: A  C  D F
+		return path[nodes.index(min(nodes))]							# O(1), O(1)
 
 	'''
 	Helper function createMatrix creates a cost matrix based on all cities contained in the
@@ -430,15 +401,15 @@ class TSPSolver:
 	'''
 
 	def createMatrix(self, cities):
-		myMatrix = [[math.inf for x in cities] for x in cities]  # O(n^2), O(n^2)
-		for i in cities:  # O(n), O(1)
-			for j in cities:  # O(n), O(1)
-				if self._scenario._edge_exists[i._index][j._index]:  # O(1), O(1)
-					first = cities[i._index]  # O(1), O(1)
-					second = cities[j._index]  # O(1), O(1)
-					pathCost = first.costTo(second)  # O(1), O(1)
-					myMatrix[i._index][j._index] = pathCost  # O(1), O(1)
-		return myMatrix  # O(1), O(1)
+		myMatrix = [[math.inf for x in cities] for x in cities]  		# O(n^2), O(n^2)
+		for i in cities:  												# O(n), O(1)
+			for j in cities:  											# O(n), O(1)
+				if self._scenario._edge_exists[i._index][j._index]:  	# O(1), O(1)
+					first = cities[i._index]  							# O(1), O(1)
+					second = cities[j._index]  							# O(1), O(1)
+					pathCost = first.costTo(second)  					# O(1), O(1)
+					myMatrix[i._index][j._index] = pathCost  			# O(1), O(1)
+		return myMatrix  												# O(1), O(1)
 
 	'''
 	Helper function reduceMatrix reduces a full cost matrix for all rows and columns. This
@@ -453,17 +424,17 @@ class TSPSolver:
 	'''
 
 	def reduceMatrix(self, matrix, cities):
-		minRow = np.min(matrix, axis=1)  # O(1), O(n)
-		bound = np.sum(minRow)  # O(1), O(1)
-		for i in cities:  # O(n), O(1)
-			for j in cities:  # O(n), O(1)
-				matrix[i._index][j._index] = matrix[i._index][j._index] - minRow[i._index]  # O(1), O(1)
-		minColumn = np.min(matrix, axis=0)  # O(1), O(n)
-		bound += np.sum(minColumn)  # O(1), O(1)
-		for i in cities:  # O(n), O(1)
-			for j in cities:  # O(n), O(1)
-				matrix[i._index][j._index] = matrix[i._index][j._index] - minColumn[j._index]  # O(1), O(1)
-		return bound  # O(1), O(1)
+		minRow = np.min(matrix, axis=1)  														# O(1), O(n)
+		bound = np.sum(minRow)  																# O(1), O(1)
+		for i in cities:  																		# O(n), O(1)
+			for j in cities:  																	# O(n), O(1)
+				matrix[i._index][j._index] = matrix[i._index][j._index] - minRow[i._index]  	# O(1), O(1)
+		minColumn = np.min(matrix, axis=0)  													# O(1), O(n)
+		bound += np.sum(minColumn)  															# O(1), O(1)
+		for i in cities:  																		# O(n), O(1)
+			for j in cities:  																	# O(n), O(1)
+				matrix[i._index][j._index] = matrix[i._index][j._index] - minColumn[j._index]  	# O(1), O(1)
+		return bound  																			# O(1), O(1)
 
 	'''
 	Helper function reduceMatrixPath reduces a cost matrix based on including a particular
@@ -479,26 +450,26 @@ class TSPSolver:
 
 	def reduceMatrixPath(self, matrix, cities, pathRow, pathColumn, remCities):
 		# calculate the path cost, set row/column to inf
-		bound = matrix[pathRow][pathColumn]  # O(1), O(1)
-		matrix[:, pathColumn] = math.inf  # O(1), O(1)
-		matrix[pathRow, :] = math.inf  # O(1), O(1)
-		for i in range(len(cities)):  # O(n), O(1)
-			if i not in remCities[1]:  # O(1), O(1)
-				matrix[pathColumn][i] = math.inf  # O(1), O(1)
+		bound = matrix[pathRow][pathColumn]  												# O(1), O(1)
+		matrix[:, pathColumn] = math.inf  													# O(1), O(1)
+		matrix[pathRow, :] = math.inf  														# O(1), O(1)
+		for i in range(len(cities)):  														# O(n), O(1)
+			if i not in remCities[1]:  														# O(1), O(1)
+				matrix[pathColumn][i] = math.inf  											# O(1), O(1)
 
 		# calculate the update cost, reduce matrix
-		minRow = np.min(matrix, axis=1)  # O(1), O(n)
-		for source in remCities[0]:  # O(n), O(1)
-			bound += minRow[source]  # O(1), O(1)
-			for dest in cities:  # O(n), O(1)
-				matrix[source][dest._index] = matrix[source][dest._index] - minRow[source]  # O(1), O(1)
-		minColumn = np.min(matrix, axis=0)  # O(1), O(n)
-		for sink in remCities[1]:  # O(n), O(1)
-			bound += minColumn[sink]  # O(1), O(1)
-			for origin in cities:  # O(1), O(1)
-				matrix[origin._index][sink] = matrix[origin._index][sink] - minColumn[sink]  # O(1), O(1)
+		minRow = np.min(matrix, axis=1)  													# O(1), O(n)
+		for source in remCities[0]:  														# O(n), O(1)
+			bound += minRow[source]  														# O(1), O(1)
+			for dest in cities:  															# O(n), O(1)
+				matrix[source][dest._index] = matrix[source][dest._index] - minRow[source]	# O(1), O(1)
+		minColumn = np.min(matrix, axis=0)  												# O(1), O(n)
+		for sink in remCities[1]:  															# O(n), O(1)
+			bound += minColumn[sink]  														# O(1), O(1)
+			for origin in cities:  															# O(1), O(1)
+				matrix[origin._index][sink] = matrix[origin._index][sink] - minColumn[sink]	# O(1), O(1)
 
-		return bound  # O(1), O(1)
+		return bound  																		# O(1), O(1)
 
 
 class Node:
